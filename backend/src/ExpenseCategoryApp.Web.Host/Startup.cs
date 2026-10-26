@@ -76,8 +76,6 @@ namespace ExpenseCategoryApp.Web.Host
             services.AddCors();
             services.AddHostedService<MigrationHostedService>();
             services.AddHttpClient();
-            // Zamanlanmis akislar — bu kayit yokken JWT projelerinde schedule tetikleyicileri hic calismiyordu
-            services.AddHostedService<ExpenseCategoryApp.Flows.FlowSchedulerService>();
             // Required by JwtPermissionChecker — reads JWT "permission" claims from HttpContext.User
             services.AddHttpContextAccessor();
 

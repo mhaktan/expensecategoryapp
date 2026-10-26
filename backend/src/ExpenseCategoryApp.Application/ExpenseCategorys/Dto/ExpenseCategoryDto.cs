@@ -11,7 +11,9 @@ namespace ExpenseCategoryApp.ExpenseCategorys.Dto
 
         public string Description { get; set; }
 
-        public bool IsActive { get; set; }
+        public string ColorHex { get; set; }
+
+        public string Icon { get; set; }
 
         public DateTime CreationTime { get; set; }
 

@@ -8,6 +8,7 @@ namespace ExpenseCategoryApp.ExpenseCategorys.Dto
         public string Keyword { get; set; }
         public string Name { get; set; }
         public string Description { get; set; }
-        public bool? IsActive { get; set; }
+        public string ColorHex { get; set; }
+        public string Icon { get; set; }
     }
 }

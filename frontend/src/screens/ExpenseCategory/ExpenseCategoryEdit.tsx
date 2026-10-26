@@ -1,16 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import { Button } from '@takeoff-ui/react-spar';
-import { SparCheckbox, SparTextField } from '../../shared/ui';
+import { SparTextField } from '../../shared/ui';
 import { dataProvider } from '../../dataProvider';
 import { overlayStyle, modalStyle } from '../../styles';
-import { useFlows } from '../../flows/FlowProvider';
 
 type ExpenseCategoryRecord = {
   id: string | number;
   name: string;
   description?: string;
-  isActive: boolean;
+  colorHex?: string;
+  icon?: string;
 };
 
 interface ExpenseCategoryEditProps {
@@ -22,7 +22,6 @@ interface ExpenseCategoryEditProps {
 export const ExpenseCategoryEdit: React.FC<ExpenseCategoryEditProps> = ({ record, onClose, onSuccess }) => {
   const [form, setForm] = useState<Partial<ExpenseCategoryRecord>>(record ?? {});
   const setField = (name: string, value: unknown) => setForm((p) => ({ ...p, [name]: value }));
-  const { triggerFlows } = useFlows();
 
   useEffect(() => {
     if (record) setForm({ ...record });
@@ -31,7 +30,7 @@ export const ExpenseCategoryEdit: React.FC<ExpenseCategoryEditProps> = ({ record
   const mutation = useMutation({
     mutationFn: (values: Partial<ExpenseCategoryRecord>) =>
       dataProvider.update('ExpenseCategory', record!.id, values),
-    onSuccess: (_data, values) => { triggerFlows('update', 'ExpenseCategory', values as Record<string, unknown>); onSuccess(); onClose(); },
+    onSuccess: (_data, values) => { onSuccess(); onClose(); },
     onError: (err: Error) => { window.dispatchEvent(new CustomEvent('app-toast', { detail: { type: 'error', message: err.message } })); },
   });
 
@@ -54,7 +53,10 @@ export const ExpenseCategoryEdit: React.FC<ExpenseCategoryEditProps> = ({ record
                   <SparTextField label="Description" value={String(form.description ?? '')} onChange={(v) => setField('description', v)} />
                 </div>
                 <div style={{ gridColumn: 'span 6' }}>
-                  <SparCheckbox label="Is Active *" checked={!!form.isActive} onChange={(v) => setField('isActive', v)} />
+                  <SparTextField label="Color Hex" value={String(form.colorHex ?? '')} onChange={(v) => setField('colorHex', v)} />
+                </div>
+                <div style={{ gridColumn: 'span 6' }}>
+                  <SparTextField label="Icon" value={String(form.icon ?? '')} onChange={(v) => setField('icon', v)} />
                 </div>
             </div>
           </div>

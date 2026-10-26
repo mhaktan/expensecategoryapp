@@ -25,14 +25,14 @@ namespace ExpenseCategoryApp.Tests.ExpenseItems
 
             // Assert
             entity.Id.Should().Be(default(long));
-
+            entity.IsRecurring.Should().Be(false);
         }
 
         [Fact]
-        public void ExpenseItem_Description_ShouldAcceptValue()
+        public void ExpenseItem_Title_ShouldAcceptValue()
         {
-            var entity = new ExpenseItem { Description = "Test Value" };
-            entity.Description.Should().Be("Test Value");
+            var entity = new ExpenseItem { Title = "Test Value" };
+            entity.Title.Should().Be("Test Value");
         }
 
     }

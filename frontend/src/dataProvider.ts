@@ -77,9 +77,8 @@ interface ResourceConfig {
 
 const RESOURCE_CONFIG: Record<string, ResourceConfig> = {
   'ExpenseCategory': { path: 'api/services/app/ExpenseCategory', paginationStyle: 'offset-limit', pageParam: 'SkipCount', sizeParam: 'MaxResultCount', sortStyle: 'combined', sortParam: 'Sorting', filterStyle: 'search', searchParam: 'Keyword', abpStyle: true },
-  'ExpenseApprovalThreshold': { path: 'api/services/app/ExpenseApprovalThreshold', paginationStyle: 'offset-limit', pageParam: 'SkipCount', sizeParam: 'MaxResultCount', sortStyle: 'combined', sortParam: 'Sorting', filterStyle: 'search', searchParam: 'Keyword', abpStyle: true },
-  'ExpenseReport': { path: 'api/services/app/ExpenseReport', paginationStyle: 'offset-limit', pageParam: 'SkipCount', sizeParam: 'MaxResultCount', sortStyle: 'combined', sortParam: 'Sorting', filterStyle: 'search', searchParam: 'Keyword', abpStyle: true },
   'ExpenseItem': { path: 'api/services/app/ExpenseItem', paginationStyle: 'offset-limit', pageParam: 'SkipCount', sizeParam: 'MaxResultCount', sortStyle: 'combined', sortParam: 'Sorting', filterStyle: 'search', searchParam: 'Keyword', abpStyle: true },
+  'Budget': { path: 'api/services/app/Budget', paginationStyle: 'offset-limit', pageParam: 'SkipCount', sizeParam: 'MaxResultCount', sortStyle: 'combined', sortParam: 'Sorting', filterStyle: 'search', searchParam: 'Keyword', abpStyle: true },
   'User': { path: 'api/services/app/AppUser', paginationStyle: 'offset-limit', pageParam: 'SkipCount', sizeParam: 'MaxResultCount', sortStyle: 'combined', sortParam: 'Sorting', filterStyle: 'search', searchParam: 'Keyword', abpStyle: true },
   'Role': { path: 'api/services/app/AppRole', paginationStyle: 'offset-limit', pageParam: 'SkipCount', sizeParam: 'MaxResultCount', sortStyle: 'combined', sortParam: 'Sorting', filterStyle: 'search', searchParam: 'Keyword', abpStyle: true },
 };

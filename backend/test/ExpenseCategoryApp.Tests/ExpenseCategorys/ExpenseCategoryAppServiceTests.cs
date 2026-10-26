@@ -9,7 +9,6 @@ using Moq;
 using ExpenseCategoryApp.Entities;
 using ExpenseCategoryApp.ExpenseCategorys;
 using ExpenseCategoryApp.ExpenseCategorys.Dto;
-using ExpenseCategoryApp.Flows;
 
 namespace ExpenseCategoryApp.Tests.ExpenseCategorys
 {
@@ -21,7 +20,7 @@ namespace ExpenseCategoryApp.Tests.ExpenseCategorys
         public ExpenseCategoryAppServiceTests()
         {
             _repositoryMock = new Mock<IRepository<ExpenseCategory, long>>();
-            _service = new ExpenseCategoryAppService(_repositoryMock.Object, new Mock<IFlowEngine>().Object);
+            _service = new ExpenseCategoryAppService(_repositoryMock.Object);
         }
 
         [Fact]
@@ -30,8 +29,8 @@ namespace ExpenseCategoryApp.Tests.ExpenseCategorys
             // Arrange
             var entities = new[]
             {
-                new ExpenseCategory { Id = 1, Name = "Test name", IsActive = true },
-                new ExpenseCategory { Id = 2, Name = "Test name", IsActive = true },
+                new ExpenseCategory { Id = 1, Name = "Test name" },
+                new ExpenseCategory { Id = 2, Name = "Test name" },
             }.AsQueryable();
 
             _repositoryMock.Setup(r => r.GetAll()).Returns(entities);
@@ -50,8 +49,8 @@ namespace ExpenseCategoryApp.Tests.ExpenseCategorys
             // Arrange
             var entities = new[]
             {
-                new ExpenseCategory { Id = 1, Name = "Test name", IsActive = true },
-                new ExpenseCategory { Id = 2, Name = "Test name", IsActive = true },
+                new ExpenseCategory { Id = 1, Name = "Test name" },
+                new ExpenseCategory { Id = 2, Name = "Test name" },
             }.AsQueryable();
 
             _repositoryMock.Setup(r => r.GetAll()).Returns(entities);
@@ -70,13 +69,13 @@ namespace ExpenseCategoryApp.Tests.ExpenseCategorys
             // Arrange
             var dto = new CreateExpenseCategoryDto
             {
-                Name = "Test name", IsActive = true
+                Name = "Test name"
             };
 
             _repositoryMock.Setup(r => r.InsertAndGetIdAsync(It.IsAny<ExpenseCategory>()))
                 .ReturnsAsync(1);
             _repositoryMock.Setup(r => r.GetAsync(It.IsAny<long>()))
-                .ReturnsAsync(new ExpenseCategory { Id = 1, Name = "Test name", IsActive = true });
+                .ReturnsAsync(new ExpenseCategory { Id = 1, Name = "Test name" });
 
             // Act & Assert
             _service.Should().NotBeNull();
@@ -87,7 +86,7 @@ namespace ExpenseCategoryApp.Tests.ExpenseCategorys
         {
             // Arrange
             _repositoryMock.Setup(r => r.GetAsync(It.IsAny<long>()))
-                .ReturnsAsync(new ExpenseCategory { Id = 1, Name = "Test name", IsActive = true });
+                .ReturnsAsync(new ExpenseCategory { Id = 1, Name = "Test name" });
 
             // Act & Assert
             await _service.Invoking(s => s.DeleteAsync(new Abp.Application.Services.Dto.EntityDto<long> { Id = 1 }))

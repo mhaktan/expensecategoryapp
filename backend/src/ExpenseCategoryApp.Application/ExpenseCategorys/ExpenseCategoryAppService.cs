@@ -12,9 +12,8 @@ using ExpenseCategoryApp.Entities;
 using ExpenseCategoryApp.ExpenseCategorys.Dto;
 using ExpenseCategoryApp.Analytics.Dto;
 using ExpenseCategoryApp.ExpenseItems.Dto;
-using ExpenseCategoryApp.Approvals.Dto;
+using ExpenseCategoryApp.Budgets.Dto;
 using ExpenseCategoryApp.Authorization;
-using ExpenseCategoryApp.Flows;
 
 namespace ExpenseCategoryApp.ExpenseCategorys
 {
@@ -27,12 +26,9 @@ namespace ExpenseCategoryApp.ExpenseCategorys
         ExpenseCategoryDto>,
         IExpenseCategoryAppService
     {
-        private readonly IFlowEngine _flowEngine;
-
-        public ExpenseCategoryAppService(IRepository<ExpenseCategory, long> repository, IFlowEngine flowEngine)
+        public ExpenseCategoryAppService(IRepository<ExpenseCategory, long> repository)
             : base(repository)
         {
-            _flowEngine = flowEngine;
             // Claim-based authorization (JwtPermissionChecker reads JWT "permission" claims)
             GetPermissionName = PermissionNames.ExpenseCategory_Read;
             GetAllPermissionName = PermissionNames.ExpenseCategory_Read;
@@ -47,30 +43,13 @@ namespace ExpenseCategoryApp.ExpenseCategorys
                 .WhereIf(!input.Keyword.IsNullOrWhiteSpace(), x =>
                     x.Id.ToString().Contains(input.Keyword) ||
                     (x.Name != null && x.Name.Contains(input.Keyword)) ||
-                    (x.Description != null && x.Description.Contains(input.Keyword)))
+                    (x.Description != null && x.Description.Contains(input.Keyword)) ||
+                    (x.ColorHex != null && x.ColorHex.Contains(input.Keyword)) ||
+                    (x.Icon != null && x.Icon.Contains(input.Keyword)))
                 .WhereIf(!input.Name.IsNullOrWhiteSpace(), x => x.Name != null && x.Name.Contains(input.Name))
                 .WhereIf(!input.Description.IsNullOrWhiteSpace(), x => x.Description != null && x.Description.Contains(input.Description))
-                .WhereIf(input.IsActive.HasValue, x => x.IsActive == input.IsActive.Value);
-        }
-
-        public override async Task<ExpenseCategoryDto> CreateAsync(CreateExpenseCategoryDto input)
-        {
-            var result = await base.CreateAsync(input);
-            await _flowEngine.TriggerAsync("on-create", "ExpenseCategory", result);
-            return result;
-        }
-
-        public override async Task<ExpenseCategoryDto> UpdateAsync(ExpenseCategoryDto input)
-        {
-            var result = await base.UpdateAsync(input);
-            await _flowEngine.TriggerAsync("on-update", "ExpenseCategory", result);
-            return result;
-        }
-
-        public override async Task DeleteAsync(EntityDto<long> input)
-        {
-            await base.DeleteAsync(input);
-            await _flowEngine.TriggerAsync("on-delete", "ExpenseCategory", new { Id = input.Id });
+                .WhereIf(!input.ColorHex.IsNullOrWhiteSpace(), x => x.ColorHex != null && x.ColorHex.Contains(input.ColorHex))
+                .WhereIf(!input.Icon.IsNullOrWhiteSpace(), x => x.Icon != null && x.Icon.Contains(input.Icon));
         }
         /// <summary>
         /// Rapor verisi — kok kayit ve alt koleksiyonlar TEK yanitta.
@@ -81,6 +60,7 @@ namespace ExpenseCategoryApp.ExpenseCategorys
         {
             var root = await Repository.GetAll()
                 .Include(x => x.ExpenseItems)
+                .Include(x => x.Budgets)
                 .FirstOrDefaultAsync(x => x.Id == id);
 
             if (root == null)
@@ -91,6 +71,8 @@ namespace ExpenseCategoryApp.ExpenseCategorys
                 Data = ObjectMapper.Map<ExpenseCategoryDto>(root),
                 ExpenseItems = ObjectMapper.Map<List<ExpenseItemDto>>(
                     root.ExpenseItems == null ? new List<ExpenseItem>() : root.ExpenseItems.ToList()),
+                Budgets = ObjectMapper.Map<List<BudgetDto>>(
+                    root.Budgets == null ? new List<Budget>() : root.Budgets.ToList()),
             };
         }
 

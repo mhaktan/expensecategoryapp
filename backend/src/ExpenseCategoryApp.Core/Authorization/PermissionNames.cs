@@ -10,24 +10,17 @@ namespace ExpenseCategoryApp.Authorization
         public const string ExpenseCategory_Update = "ExpenseCategory.Update";
         public const string ExpenseCategory_Delete = "ExpenseCategory.Delete";
 
-        // ExpenseApprovalThreshold
-        public const string ExpenseApprovalThreshold_Read = "ExpenseApprovalThreshold.Read";
-        public const string ExpenseApprovalThreshold_Create = "ExpenseApprovalThreshold.Create";
-        public const string ExpenseApprovalThreshold_Update = "ExpenseApprovalThreshold.Update";
-        public const string ExpenseApprovalThreshold_Delete = "ExpenseApprovalThreshold.Delete";
-
-        // ExpenseReport
-        public const string ExpenseReport_Read = "ExpenseReport.Read";
-        public const string ExpenseReport_Create = "ExpenseReport.Create";
-        public const string ExpenseReport_Update = "ExpenseReport.Update";
-        public const string ExpenseReport_Delete = "ExpenseReport.Delete";
-        public const string ExpenseReport_ChangeStatus = "ExpenseReport.ChangeStatus";
-
         // ExpenseItem
         public const string ExpenseItem_Read = "ExpenseItem.Read";
         public const string ExpenseItem_Create = "ExpenseItem.Create";
         public const string ExpenseItem_Update = "ExpenseItem.Update";
         public const string ExpenseItem_Delete = "ExpenseItem.Delete";
+
+        // Budget
+        public const string Budget_Read = "Budget.Read";
+        public const string Budget_Create = "Budget.Create";
+        public const string Budget_Update = "Budget.Update";
+        public const string Budget_Delete = "Budget.Delete";
 
         // RBAC management
         public const string AppUser_Read = "AppUser.Read";

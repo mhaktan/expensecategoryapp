@@ -57,29 +57,22 @@ namespace ExpenseCategoryApp.Web.Host
                     if (!db.ExpenseCategories.Any())
                     {
                         db.ExpenseCategories.AddRange(
-                    new ExpenseCategory { Id = 1, Name = "Gider Kategorisi 1", Description = "Lorem ipsum dolor sit amet", IsActive = true },
-                    new ExpenseCategory { Id = 2, Name = "Gider Kategorisi 2", Description = "Consectetur adipiscing elit", IsActive = false }
-                        );
-                    }
-                    if (!db.ExpenseApprovalThresholds.Any())
-                    {
-                        db.ExpenseApprovalThresholds.AddRange(
-                    new ExpenseApprovalThreshold { Id = 3, Name = "Gider Onay Eşiği 1", Currency = (ExpenseApprovalThresholdCurrency)0, ThresholdAmount = 99.99m, Description = "Lorem ipsum dolor sit amet", IsActive = true },
-                    new ExpenseApprovalThreshold { Id = 4, Name = "Gider Onay Eşiği 2", Currency = (ExpenseApprovalThresholdCurrency)1, ThresholdAmount = 149.50m, Description = "Consectetur adipiscing elit", IsActive = false }
-                        );
-                    }
-                    if (!db.ExpenseReports.Any())
-                    {
-                        db.ExpenseReports.AddRange(
-                    new ExpenseReport { Id = 5, Title = "Introduction to Physics", Description = "Lorem ipsum dolor sit amet", ReportDate = new DateTime(2024, 3, 15), TotalAmount = 99.99m, Currency = (ExpenseReportCurrency)0, Status = (ExpenseReportStatus)0, RevisionNote = "Lorem ipsum dolor sit amet" },
-                    new ExpenseReport { Id = 6, Title = "Advanced Mathematics", Description = "Consectetur adipiscing elit", ReportDate = new DateTime(2024, 6, 20), TotalAmount = 149.50m, Currency = (ExpenseReportCurrency)1, Status = (ExpenseReportStatus)0, RevisionNote = "Consectetur adipiscing elit" }
+                    new ExpenseCategory { Id = 1, Name = "Harcama Kategorisi 1", Description = "Lorem ipsum dolor sit amet", ColorHex = "Sample ", Icon = "Sample Item 1" },
+                    new ExpenseCategory { Id = 2, Name = "Harcama Kategorisi 2", Description = "Consectetur adipiscing elit", ColorHex = "Sample ", Icon = "Sample Item 2" }
                         );
                     }
                     if (!db.ExpenseItems.Any())
                     {
                         db.ExpenseItems.AddRange(
-                    new ExpenseItem { Id = 7, Description = "Lorem ipsum dolor sit amet", ExpenseDate = new DateTime(2024, 3, 15), Amount = 99.99m, Currency = (ExpenseItemCurrency)0, ExchangeRate = 99.99m, AmountInTRY = 99.99m, ReceiptNo = "ABC-001", ExpenseReportId = 5, ExpenseCategoryId = 1 },
-                    new ExpenseItem { Id = 8, Description = "Consectetur adipiscing elit", ExpenseDate = new DateTime(2024, 6, 20), Amount = 149.50m, Currency = (ExpenseItemCurrency)1, ExchangeRate = 149.50m, AmountInTRY = 149.50m, ReceiptNo = "XYZ-002", ExpenseReportId = 6, ExpenseCategoryId = 2 }
+                    new ExpenseItem { Id = 3, Title = "Introduction to Physics", Amount = 99.99m, Currency = (ExpenseItemCurrency)0, ExpenseDate = new DateTime(2024, 3, 15), Notes = "Lorem ipsum dolor sit amet", PaymentMethod = (ExpenseItemPaymentMethod)0, IsRecurring = true, ExpenseCategoryId = 1 },
+                    new ExpenseItem { Id = 4, Title = "Advanced Mathematics", Amount = 149.50m, Currency = (ExpenseItemCurrency)1, ExpenseDate = new DateTime(2024, 6, 20), Notes = "Consectetur adipiscing elit", PaymentMethod = (ExpenseItemPaymentMethod)1, IsRecurring = false, ExpenseCategoryId = 2 }
+                        );
+                    }
+                    if (!db.Budgets.Any())
+                    {
+                        db.Budgets.AddRange(
+                    new Budget { Id = 5, Name = "Bütçe Limiti 1", LimitAmount = 99.99m, Currency = (BudgetCurrency)0, PeriodType = (BudgetPeriodType)0, StartDate = new DateTime(2024, 3, 15), EndDate = new DateTime(2024, 3, 15), WarningThresholdPercent = 42, ExpenseCategoryId = 1 },
+                    new Budget { Id = 6, Name = "Bütçe Limiti 2", LimitAmount = 149.50m, Currency = (BudgetCurrency)1, PeriodType = (BudgetPeriodType)1, StartDate = new DateTime(2024, 6, 20), EndDate = new DateTime(2024, 6, 20), WarningThresholdPercent = 17, ExpenseCategoryId = 2 }
                         );
                     }
                             db.SaveChanges();
@@ -96,9 +89,8 @@ namespace ExpenseCategoryApp.Web.Host
                         try
                         {
                             db.Database.ExecuteSqlRaw("SELECT setval(pg_get_serial_sequence('\"ExpenseCategories\"', 'Id'), (SELECT COALESCE(MAX(\"Id\"), 0) FROM \"ExpenseCategories\") + 1, false);");
-                            db.Database.ExecuteSqlRaw("SELECT setval(pg_get_serial_sequence('\"ExpenseApprovalThresholds\"', 'Id'), (SELECT COALESCE(MAX(\"Id\"), 0) FROM \"ExpenseApprovalThresholds\") + 1, false);");
-                            db.Database.ExecuteSqlRaw("SELECT setval(pg_get_serial_sequence('\"ExpenseReports\"', 'Id'), (SELECT COALESCE(MAX(\"Id\"), 0) FROM \"ExpenseReports\") + 1, false);");
                             db.Database.ExecuteSqlRaw("SELECT setval(pg_get_serial_sequence('\"ExpenseItems\"', 'Id'), (SELECT COALESCE(MAX(\"Id\"), 0) FROM \"ExpenseItems\") + 1, false);");
+                            db.Database.ExecuteSqlRaw("SELECT setval(pg_get_serial_sequence('\"Budgets\"', 'Id'), (SELECT COALESCE(MAX(\"Id\"), 0) FROM \"Budgets\") + 1, false);");
                             Console.WriteLine("[Seed] Identity sequences synced.");
                         }
                         catch (Exception seqEx)

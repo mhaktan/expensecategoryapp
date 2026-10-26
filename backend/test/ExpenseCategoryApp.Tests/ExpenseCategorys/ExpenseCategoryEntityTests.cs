@@ -25,7 +25,7 @@ namespace ExpenseCategoryApp.Tests.ExpenseCategorys
 
             // Assert
             entity.Id.Should().Be(default(long));
-            entity.IsActive.Should().Be(false);
+
         }
 
         [Fact]

@@ -9,7 +9,6 @@ using Moq;
 using ExpenseCategoryApp.Entities;
 using ExpenseCategoryApp.ExpenseItems;
 using ExpenseCategoryApp.ExpenseItems.Dto;
-using ExpenseCategoryApp.Flows;
 
 namespace ExpenseCategoryApp.Tests.ExpenseItems
 {
@@ -21,7 +20,7 @@ namespace ExpenseCategoryApp.Tests.ExpenseItems
         public ExpenseItemAppServiceTests()
         {
             _repositoryMock = new Mock<IRepository<ExpenseItem, long>>();
-            _service = new ExpenseItemAppService(_repositoryMock.Object, new Mock<IFlowEngine>().Object);
+            _service = new ExpenseItemAppService(_repositoryMock.Object);
         }
 
         [Fact]
@@ -30,8 +29,8 @@ namespace ExpenseCategoryApp.Tests.ExpenseItems
             // Arrange
             var entities = new[]
             {
-                new ExpenseItem { Id = 1, Description = "Test description", ExpenseDate = DateTime.UtcNow, Amount = 10.0m, Currency = 0 },
-                new ExpenseItem { Id = 2, Description = "Test description", ExpenseDate = DateTime.UtcNow, Amount = 10.0m, Currency = 0 },
+                new ExpenseItem { Id = 1, Title = "Test title", Amount = 10.0m, Currency = 0, ExpenseDate = DateTime.UtcNow },
+                new ExpenseItem { Id = 2, Title = "Test title", Amount = 10.0m, Currency = 0, ExpenseDate = DateTime.UtcNow },
             }.AsQueryable();
 
             _repositoryMock.Setup(r => r.GetAll()).Returns(entities);
@@ -50,8 +49,8 @@ namespace ExpenseCategoryApp.Tests.ExpenseItems
             // Arrange
             var entities = new[]
             {
-                new ExpenseItem { Id = 1, Description = "Test description", ExpenseDate = DateTime.UtcNow, Amount = 10.0m, Currency = 0 },
-                new ExpenseItem { Id = 2, Description = "Test description", ExpenseDate = DateTime.UtcNow, Amount = 10.0m, Currency = 0 },
+                new ExpenseItem { Id = 1, Title = "Test title", Amount = 10.0m, Currency = 0, ExpenseDate = DateTime.UtcNow },
+                new ExpenseItem { Id = 2, Title = "Test title", Amount = 10.0m, Currency = 0, ExpenseDate = DateTime.UtcNow },
             }.AsQueryable();
 
             _repositoryMock.Setup(r => r.GetAll()).Returns(entities);
@@ -70,13 +69,13 @@ namespace ExpenseCategoryApp.Tests.ExpenseItems
             // Arrange
             var dto = new CreateExpenseItemDto
             {
-                Description = "Test description", ExpenseDate = DateTime.UtcNow, Amount = 10.0m, Currency = 0
+                Title = "Test title", Amount = 10.0m, Currency = 0, ExpenseDate = DateTime.UtcNow
             };
 
             _repositoryMock.Setup(r => r.InsertAndGetIdAsync(It.IsAny<ExpenseItem>()))
                 .ReturnsAsync(1);
             _repositoryMock.Setup(r => r.GetAsync(It.IsAny<long>()))
-                .ReturnsAsync(new ExpenseItem { Id = 1, Description = "Test description", ExpenseDate = DateTime.UtcNow, Amount = 10.0m, Currency = 0 });
+                .ReturnsAsync(new ExpenseItem { Id = 1, Title = "Test title", Amount = 10.0m, Currency = 0, ExpenseDate = DateTime.UtcNow });
 
             // Act & Assert
             _service.Should().NotBeNull();
@@ -87,7 +86,7 @@ namespace ExpenseCategoryApp.Tests.ExpenseItems
         {
             // Arrange
             _repositoryMock.Setup(r => r.GetAsync(It.IsAny<long>()))
-                .ReturnsAsync(new ExpenseItem { Id = 1, Description = "Test description", ExpenseDate = DateTime.UtcNow, Amount = 10.0m, Currency = 0 });
+                .ReturnsAsync(new ExpenseItem { Id = 1, Title = "Test title", Amount = 10.0m, Currency = 0, ExpenseDate = DateTime.UtcNow });
 
             // Act & Assert
             await _service.Invoking(s => s.DeleteAsync(new Abp.Application.Services.Dto.EntityDto<long> { Id = 1 }))

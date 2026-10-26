@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using ExpenseCategoryApp.ExpenseItems.Dto;
+using ExpenseCategoryApp.Budgets.Dto;
 
 namespace ExpenseCategoryApp.ExpenseCategorys.Dto
 {
@@ -12,5 +13,6 @@ namespace ExpenseCategoryApp.ExpenseCategorys.Dto
     {
         public ExpenseCategoryDto Data { get; set; }
         public List<ExpenseItemDto> ExpenseItems { get; set; }
+        public List<BudgetDto> Budgets { get; set; }
     }
 }

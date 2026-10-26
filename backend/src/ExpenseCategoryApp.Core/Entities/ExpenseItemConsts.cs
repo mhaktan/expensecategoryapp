@@ -2,7 +2,7 @@ namespace ExpenseCategoryApp.Entities
 {
     public static class ExpenseItemConsts
     {
-        public const int MaxDescriptionLength = 500;
-        public const int MaxReceiptNoLength = 100;
+        public const int MaxTitleLength = 200;
+        public const int MaxNotesLength = 1000;
     }
 }

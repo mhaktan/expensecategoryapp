@@ -4,13 +4,10 @@ import { BrowserRouter, Route, Routes, Navigate } from 'react-router-dom';
 import { isAuthenticated, clearAuth } from './dataProvider';
 import { LoginPage } from './screens/LoginPage';
 import { GlobalMenu } from './components/GlobalMenu';
-import { FlowProvider } from './flows/FlowProvider';
 import { ExpenseCategoryList } from './screens/ExpenseCategory/ExpenseCategoryList';
-import { ExpenseApprovalThresholdList } from './screens/ExpenseApprovalThreshold/ExpenseApprovalThresholdList';
-import { ExpenseReportList } from './screens/ExpenseReport/ExpenseReportList';
 import { ExpenseItemList } from './screens/ExpenseItem/ExpenseItemList';
+import { BudgetList } from './screens/Budget/BudgetList';
 import { DashboardScreen } from './screens/dashboard/DashboardScreen';
-import TaskInboxScreen from './screens/tasks/TaskInboxScreen';
 import UserListScreen from './admin/UserListScreen';
 import RoleListScreen from './admin/RoleListScreen';
 
@@ -30,7 +27,6 @@ export const App: React.FC = () => {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <FlowProvider>
       <BrowserRouter>
         <Routes>
           <Route path="*" element={
@@ -41,10 +37,8 @@ export const App: React.FC = () => {
                     <Route path="/" element={<Navigate to="/dashboard" replace />} />
           <Route path="/dashboard" element={<DashboardScreen />} />
           <Route path="/ExpenseCategory" element={<ExpenseCategoryList />} />
-          <Route path="/ExpenseApprovalThreshold" element={<ExpenseApprovalThresholdList />} />
-          <Route path="/ExpenseReport" element={<ExpenseReportList />} />
           <Route path="/ExpenseItem" element={<ExpenseItemList />} />
-          <Route path="/tasks" element={<TaskInboxScreen />} />
+          <Route path="/Budget" element={<BudgetList />} />
           <Route path="/users" element={<UserListScreen />} />
           <Route path="/roles" element={<RoleListScreen />} />
                   </Routes>
@@ -54,7 +48,6 @@ export const App: React.FC = () => {
           } />
         </Routes>
       </BrowserRouter>
-        </FlowProvider>
     </QueryClientProvider>
   );
 };

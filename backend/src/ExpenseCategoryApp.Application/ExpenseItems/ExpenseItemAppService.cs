@@ -12,7 +12,6 @@ using ExpenseCategoryApp.Entities;
 using ExpenseCategoryApp.ExpenseItems.Dto;
 using ExpenseCategoryApp.Analytics.Dto;
 using ExpenseCategoryApp.Authorization;
-using ExpenseCategoryApp.Flows;
 
 namespace ExpenseCategoryApp.ExpenseItems
 {
@@ -25,12 +24,9 @@ namespace ExpenseCategoryApp.ExpenseItems
         ExpenseItemDto>,
         IExpenseItemAppService
     {
-        private readonly IFlowEngine _flowEngine;
-
-        public ExpenseItemAppService(IRepository<ExpenseItem, long> repository, IFlowEngine flowEngine)
+        public ExpenseItemAppService(IRepository<ExpenseItem, long> repository)
             : base(repository)
         {
-            _flowEngine = flowEngine;
             // Claim-based authorization (JwtPermissionChecker reads JWT "permission" claims)
             GetPermissionName = PermissionNames.ExpenseItem_Read;
             GetAllPermissionName = PermissionNames.ExpenseItem_Read;
@@ -44,56 +40,37 @@ namespace ExpenseCategoryApp.ExpenseItems
             return Repository.GetAll()
                 .WhereIf(!input.Keyword.IsNullOrWhiteSpace(), x =>
                     x.Id.ToString().Contains(input.Keyword) ||
-                    (x.Description != null && x.Description.Contains(input.Keyword)) ||
-                    (x.ReceiptNo != null && x.ReceiptNo.Contains(input.Keyword)))
-                .WhereIf(!input.Description.IsNullOrWhiteSpace(), x => x.Description != null && x.Description.Contains(input.Description))
-                .WhereIf(!input.ReceiptNo.IsNullOrWhiteSpace(), x => x.ReceiptNo != null && x.ReceiptNo.Contains(input.ReceiptNo))
-                .WhereIf(input.ExpenseDate.HasValue, x => x.ExpenseDate == input.ExpenseDate.Value)
+                    (x.Title != null && x.Title.Contains(input.Keyword)) ||
+                    (x.Notes != null && x.Notes.Contains(input.Keyword)))
+                .WhereIf(!input.Title.IsNullOrWhiteSpace(), x => x.Title != null && x.Title.Contains(input.Title))
+                .WhereIf(!input.Notes.IsNullOrWhiteSpace(), x => x.Notes != null && x.Notes.Contains(input.Notes))
                 .WhereIf(input.Amount.HasValue, x => x.Amount == input.Amount.Value)
                 .WhereIf(input.Currency.HasValue, x => x.Currency == (ExpenseItemCurrency)input.Currency.Value)
-                .WhereIf(input.ExchangeRate.HasValue, x => x.ExchangeRate == input.ExchangeRate.Value)
-                .WhereIf(input.AmountInTRY.HasValue, x => x.AmountInTRY == input.AmountInTRY.Value)
-                .WhereIf(input.ExpenseDateFrom.HasValue, x => x.ExpenseDate >= input.ExpenseDateFrom.Value)
-                .WhereIf(input.ExpenseDateTo.HasValue, x => x.ExpenseDate <= input.ExpenseDateTo.Value)
+                .WhereIf(input.ExpenseDate.HasValue, x => x.ExpenseDate == input.ExpenseDate.Value)
+                .WhereIf(input.PaymentMethod.HasValue, x => x.PaymentMethod == (ExpenseItemPaymentMethod)input.PaymentMethod.Value)
+                .WhereIf(input.IsRecurring.HasValue, x => x.IsRecurring == input.IsRecurring.Value)
                 .WhereIf(input.AmountFrom.HasValue, x => x.Amount >= input.AmountFrom.Value)
                 .WhereIf(input.AmountTo.HasValue, x => x.Amount <= input.AmountTo.Value)
-                .WhereIf(input.ExchangeRateFrom.HasValue, x => x.ExchangeRate >= input.ExchangeRateFrom.Value)
-                .WhereIf(input.ExchangeRateTo.HasValue, x => x.ExchangeRate <= input.ExchangeRateTo.Value)
-                .WhereIf(input.AmountInTRYFrom.HasValue, x => x.AmountInTRY >= input.AmountInTRYFrom.Value)
-                .WhereIf(input.AmountInTRYTo.HasValue, x => x.AmountInTRY <= input.AmountInTRYTo.Value)
+                .WhereIf(input.ExpenseDateFrom.HasValue, x => x.ExpenseDate >= input.ExpenseDateFrom.Value)
+                .WhereIf(input.ExpenseDateTo.HasValue, x => x.ExpenseDate <= input.ExpenseDateTo.Value)
                 .WhereIf(!input.CurrencyIn.IsNullOrWhiteSpace(), x => input.CurrencyIn
                     .Split(',', StringSplitOptions.RemoveEmptyEntries)
                     .Select(v => (ExpenseItemCurrency?)int.Parse(v.Trim()))
                     .Contains(x.Currency))
                 .WhereIf(input.CurrencyNot.HasValue, x => x.Currency != (ExpenseItemCurrency)input.CurrencyNot.Value)
-                .WhereIf(input.ExpenseReportId.HasValue, x => x.ExpenseReportId == input.ExpenseReportId.Value)
+                .WhereIf(!input.PaymentMethodIn.IsNullOrWhiteSpace(), x => input.PaymentMethodIn
+                    .Split(',', StringSplitOptions.RemoveEmptyEntries)
+                    .Select(v => (ExpenseItemPaymentMethod?)int.Parse(v.Trim()))
+                    .Contains(x.PaymentMethod))
+                .WhereIf(input.PaymentMethodNot.HasValue, x => x.PaymentMethod != (ExpenseItemPaymentMethod)input.PaymentMethodNot.Value)
+                .WhereIf(input.UserId.HasValue, x => x.UserId == input.UserId.Value)
                 .WhereIf(input.ExpenseCategoryId.HasValue, x => x.ExpenseCategoryId == input.ExpenseCategoryId.Value);
-        }
-
-        public override async Task<ExpenseItemDto> CreateAsync(CreateExpenseItemDto input)
-        {
-            var result = await base.CreateAsync(input);
-            await _flowEngine.TriggerAsync("on-create", "ExpenseItem", result);
-            return result;
-        }
-
-        public override async Task<ExpenseItemDto> UpdateAsync(ExpenseItemDto input)
-        {
-            var result = await base.UpdateAsync(input);
-            await _flowEngine.TriggerAsync("on-update", "ExpenseItem", result);
-            return result;
-        }
-
-        public override async Task DeleteAsync(EntityDto<long> input)
-        {
-            await base.DeleteAsync(input);
-            await _flowEngine.TriggerAsync("on-delete", "ExpenseItem", new { Id = input.Id });
         }
         [Abp.Authorization.AbpAuthorize(PermissionNames.ExpenseItem_Read)]
         public List<GroupCountDto> GetGroupedCount(ExpenseItemGroupedCountInput input)
         {
             // Whitelist — istemciden gelen alan adı doğrudan sorguya girmez.
-            var allowed = new[] { "Currency", "ExpenseReportId", "ExpenseCategoryId" };
+            var allowed = new[] { "Currency", "PaymentMethod", "UserId", "ExpenseCategoryId" };
             if (input.GroupBy == null || !allowed.Contains(input.GroupBy))
             {
                 throw new Abp.UI.UserFriendlyException(
@@ -114,9 +91,19 @@ namespace ExpenseCategoryApp.ExpenseItems
                             Count = g.Count(),
                         })
                         .ToList();
-                case "ExpenseReportId":
+                case "PaymentMethod":
                     return query
-                        .GroupBy(x => new { Key = x.ExpenseReportId, Label = x.ExpenseReport == null ? null : x.ExpenseReport.Title })
+                        .GroupBy(x => x.PaymentMethod)
+                        .Select(g => new GroupCountDto
+                        {
+                            Key = ((int)g.Key).ToString(),
+                            Label = g.Key.ToString(),
+                            Count = g.Count(),
+                        })
+                        .ToList();
+                case "UserId":
+                    return query
+                        .GroupBy(x => new { Key = x.UserId, Label = x.User == null ? null : x.User.Name })
                         .Select(g => new GroupCountDto
                         {
                             Key = g.Key.Key.ToString(),
@@ -157,7 +144,7 @@ namespace ExpenseCategoryApp.ExpenseItems
                 }
             }
 
-            var allowedNumeric = new[] { "Amount", "ExchangeRate", "AmountInTRY" };
+            var allowedNumeric = new[] { "Amount" };
             if (!allowedNumeric.Contains(input.Field))
             {
                 throw new Abp.UI.UserFriendlyException(
@@ -169,14 +156,6 @@ namespace ExpenseCategoryApp.ExpenseItems
                             : input.Aggregate == "min" ? query.Min(x => (decimal?)x.Amount)
                             : input.Aggregate == "max" ? query.Max(x => (decimal?)x.Amount)
                             : query.Average(x => (decimal?)x.Amount);
-                        case "ExchangeRate": return input.Aggregate == "sum" ? query.Sum(x => (decimal?)x.ExchangeRate)
-                            : input.Aggregate == "min" ? query.Min(x => (decimal?)x.ExchangeRate)
-                            : input.Aggregate == "max" ? query.Max(x => (decimal?)x.ExchangeRate)
-                            : query.Average(x => (decimal?)x.ExchangeRate);
-                        case "AmountInTRY": return input.Aggregate == "sum" ? query.Sum(x => (decimal?)x.AmountInTRY)
-                            : input.Aggregate == "min" ? query.Min(x => (decimal?)x.AmountInTRY)
-                            : input.Aggregate == "max" ? query.Max(x => (decimal?)x.AmountInTRY)
-                            : query.Average(x => (decimal?)x.AmountInTRY);
                         default: return null;
             }
         }

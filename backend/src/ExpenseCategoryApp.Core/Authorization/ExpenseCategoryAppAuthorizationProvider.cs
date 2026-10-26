@@ -15,24 +15,17 @@ namespace ExpenseCategoryApp.Authorization
             pages.CreateChildPermission(PermissionNames.ExpenseCategory_Update, L("ExpenseCategory.Update"));
             pages.CreateChildPermission(PermissionNames.ExpenseCategory_Delete, L("ExpenseCategory.Delete"));
 
-            // ExpenseApprovalThreshold
-            pages.CreateChildPermission(PermissionNames.ExpenseApprovalThreshold_Read, L("ExpenseApprovalThreshold.Read"));
-            pages.CreateChildPermission(PermissionNames.ExpenseApprovalThreshold_Create, L("ExpenseApprovalThreshold.Create"));
-            pages.CreateChildPermission(PermissionNames.ExpenseApprovalThreshold_Update, L("ExpenseApprovalThreshold.Update"));
-            pages.CreateChildPermission(PermissionNames.ExpenseApprovalThreshold_Delete, L("ExpenseApprovalThreshold.Delete"));
-
-            // ExpenseReport
-            pages.CreateChildPermission(PermissionNames.ExpenseReport_Read, L("ExpenseReport.Read"));
-            pages.CreateChildPermission(PermissionNames.ExpenseReport_Create, L("ExpenseReport.Create"));
-            pages.CreateChildPermission(PermissionNames.ExpenseReport_Update, L("ExpenseReport.Update"));
-            pages.CreateChildPermission(PermissionNames.ExpenseReport_Delete, L("ExpenseReport.Delete"));
-            pages.CreateChildPermission(PermissionNames.ExpenseReport_ChangeStatus, L("ExpenseReport.ChangeStatus"));
-
             // ExpenseItem
             pages.CreateChildPermission(PermissionNames.ExpenseItem_Read, L("ExpenseItem.Read"));
             pages.CreateChildPermission(PermissionNames.ExpenseItem_Create, L("ExpenseItem.Create"));
             pages.CreateChildPermission(PermissionNames.ExpenseItem_Update, L("ExpenseItem.Update"));
             pages.CreateChildPermission(PermissionNames.ExpenseItem_Delete, L("ExpenseItem.Delete"));
+
+            // Budget
+            pages.CreateChildPermission(PermissionNames.Budget_Read, L("Budget.Read"));
+            pages.CreateChildPermission(PermissionNames.Budget_Create, L("Budget.Create"));
+            pages.CreateChildPermission(PermissionNames.Budget_Update, L("Budget.Update"));
+            pages.CreateChildPermission(PermissionNames.Budget_Delete, L("Budget.Delete"));
 
             // RBAC
             pages.CreateChildPermission(PermissionNames.AppUser_Read, L("AppUser.Read"));

@@ -8,13 +8,17 @@ namespace ExpenseCategoryApp.ExpenseCategorys.Dto
     public class CreateExpenseCategoryDto
     {
         [Required]
-        [MaxLength(200)]
+        [MaxLength(100)]
         public string Name { get; set; }
 
         [MaxLength(500)]
         public string Description { get; set; }
 
-        public bool IsActive { get; set; }
+        [MaxLength(7)]
+        public string ColorHex { get; set; }
+
+        [MaxLength(50)]
+        public string Icon { get; set; }
 
     }
 }

@@ -9,9 +9,6 @@
     <!-- EF Core for async LINQ extensions used by Role/User AppServices -->
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.*" />
     <PackageReference Include="BCrypt.Net-Next" Version="4.0.3" />
-    <PackageReference Include="Cronos" Version="0.8.4" />
-    <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="8.*" />
-    <PackageReference Include="Microsoft.Extensions.Http" Version="8.*" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ExpenseCategoryApp.Core\ExpenseCategoryApp.Core.csproj" />

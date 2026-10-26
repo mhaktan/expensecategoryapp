@@ -6,5 +6,10 @@ namespace ExpenseCategoryApp.Entities
         USD = 1,
         EUR = 2,
         GBP = 3,
+        CHF = 4,
+        JPY = 5,
+        CAD = 6,
+        AUD = 7,
+        Other = 8,
     }
 }

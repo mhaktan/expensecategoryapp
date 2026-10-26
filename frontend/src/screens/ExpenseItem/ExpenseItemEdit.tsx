@@ -1,22 +1,21 @@
 import React, { useState, useEffect } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import { Button } from '@takeoff-ui/react-spar';
-import { SparDateField, SparTextField } from '../../shared/ui';
+import { SparCheckbox, SparDateField, SparTextField } from '../../shared/ui';
 import { dataProvider } from '../../dataProvider';
 import { overlayStyle, modalStyle } from '../../styles';
 import { LookupSelect } from '../../shared/LookupSelect';
-import { useFlows } from '../../flows/FlowProvider';
 
 type ExpenseItemRecord = {
   id: string | number;
-  description: string;
-  expenseDate: string;
+  title: string;
   amount: number;
   currency: string;
-  exchangeRate?: number;
-  amountInTRY?: number;
-  receiptNo?: string;
-  expenseReportId: string;
+  expenseDate: string;
+  notes?: string;
+  paymentMethod?: string;
+  isRecurring?: boolean;
+  userId?: string;
   expenseCategoryId: string;
 };
 
@@ -29,7 +28,6 @@ interface ExpenseItemEditProps {
 export const ExpenseItemEdit: React.FC<ExpenseItemEditProps> = ({ record, onClose, onSuccess }) => {
   const [form, setForm] = useState<Partial<ExpenseItemRecord>>(record ?? {});
   const setField = (name: string, value: unknown) => setForm((p) => ({ ...p, [name]: value }));
-  const { triggerFlows } = useFlows();
 
   useEffect(() => {
     if (record) setForm({ ...record });
@@ -38,7 +36,7 @@ export const ExpenseItemEdit: React.FC<ExpenseItemEditProps> = ({ record, onClos
   const mutation = useMutation({
     mutationFn: (values: Partial<ExpenseItemRecord>) =>
       dataProvider.update('ExpenseItem', record!.id, values),
-    onSuccess: (_data, values) => { triggerFlows('update', 'ExpenseItem', values as Record<string, unknown>); onSuccess(); onClose(); },
+    onSuccess: (_data, values) => { onSuccess(); onClose(); },
     onError: (err: Error) => { window.dispatchEvent(new CustomEvent('app-toast', { detail: { type: 'error', message: err.message } })); },
   });
 
@@ -55,31 +53,31 @@ export const ExpenseItemEdit: React.FC<ExpenseItemEditProps> = ({ record, onClos
           <div style={{ flex: 1, overflowY: 'auto', padding: '20px 28px' }}>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(12, minmax(0, 1fr))', gap: '16px' }}>
                 <div style={{ gridColumn: 'span 6' }}>
-                  <SparTextField label="Description *" value={String(form.description ?? '')} onChange={(v) => setField('description', v)} />
-                </div>
-                <div style={{ gridColumn: 'span 6' }}>
-                  <SparDateField label="Expense Date *" value={String(form.expenseDate ?? '')} onChange={(v) => setField('expenseDate', v)} withTime />
+                  <SparTextField label="Title *" value={String(form.title ?? '')} onChange={(v) => setField('title', v)} />
                 </div>
                 <div style={{ gridColumn: 'span 6' }}>
                   <SparTextField label="Amount *" value={String(form.amount ?? '')} onChange={(v) => setField('amount', v === '' ? null : Number(v))} type="number" />
                 </div>
                 <div style={{ gridColumn: 'span 6' }}>
-                  <LookupSelect label="Currency *" value={String(form.currency ?? '')} onChange={(v) => setField('currency', v ? Number(v) : null)} searchable={false} options={[{ label: "TRY", value: "0" }, { label: "USD", value: "1" }, { label: "EUR", value: "2" }, { label: "GBP", value: "3" }]} />
+                  <LookupSelect label="Currency *" value={String(form.currency ?? '')} onChange={(v) => setField('currency', v ? Number(v) : null)} searchable={false} options={[{ label: "TRY", value: "0" }, { label: "USD", value: "1" }, { label: "EUR", value: "2" }, { label: "GBP", value: "3" }, { label: "CHF", value: "4" }, { label: "JPY", value: "5" }, { label: "CAD", value: "6" }, { label: "AUD", value: "7" }, { label: "Other", value: "8" }]} />
                 </div>
                 <div style={{ gridColumn: 'span 6' }}>
-                  <SparTextField label="Exchange Rate" value={String(form.exchangeRate ?? '')} onChange={(v) => setField('exchangeRate', v === '' ? null : Number(v))} type="number" />
+                  <SparDateField label="Expense Date *" value={String(form.expenseDate ?? '')} onChange={(v) => setField('expenseDate', v)} withTime />
                 </div>
                 <div style={{ gridColumn: 'span 6' }}>
-                  <SparTextField label="Amount In T R Y" value={String(form.amountInTRY ?? '')} onChange={(v) => setField('amountInTRY', v === '' ? null : Number(v))} type="number" />
+                  <SparTextField label="Notes" value={String(form.notes ?? '')} onChange={(v) => setField('notes', v)} />
                 </div>
                 <div style={{ gridColumn: 'span 6' }}>
-                  <SparTextField label="Receipt No" value={String(form.receiptNo ?? '')} onChange={(v) => setField('receiptNo', v)} />
+                  <LookupSelect label="Payment Method" value={String(form.paymentMethod ?? '')} onChange={(v) => setField('paymentMethod', v ? Number(v) : null)} searchable={false} options={[{ label: "Cash", value: "0" }, { label: "CreditCard", value: "1" }, { label: "DebitCard", value: "2" }, { label: "BankTransfer", value: "3" }, { label: "Other", value: "4" }]} />
                 </div>
                 <div style={{ gridColumn: 'span 6' }}>
-                  <LookupSelect label="Gider Raporu *" resource="ExpenseReport" value={String(form.expenseReportId ?? '')} onChange={(v) => setField('expenseReportId', v)} displayField="title" />
+                  <SparCheckbox label="Is Recurring" checked={!!form.isRecurring} onChange={(v) => setField('isRecurring', v)} />
                 </div>
                 <div style={{ gridColumn: 'span 6' }}>
-                  <LookupSelect label="Gider Kategorisi *" resource="ExpenseCategory" value={String(form.expenseCategoryId ?? '')} onChange={(v) => setField('expenseCategoryId', v)} displayField="name" />
+                  <LookupSelect label="Kullanıcı (Sistem)" resource="User" value={String(form.userId ?? '')} onChange={(v) => setField('userId', v)} displayField="name" />
+                </div>
+                <div style={{ gridColumn: 'span 6' }}>
+                  <LookupSelect label="Harcama Kategorisi *" resource="ExpenseCategory" value={String(form.expenseCategoryId ?? '')} onChange={(v) => setField('expenseCategoryId', v)} displayField="name" />
                 </div>
             </div>
           </div>

@@ -7,15 +7,12 @@ namespace ExpenseCategoryApp.EntityFrameworkCore
     public class ExpenseCategoryAppDbContext : AbpDbContext
     {
         public DbSet<ExpenseCategory> ExpenseCategories { get; set; }
-        public DbSet<ExpenseApprovalThreshold> ExpenseApprovalThresholds { get; set; }
-        public DbSet<ExpenseReport> ExpenseReports { get; set; }
         public DbSet<ExpenseItem> ExpenseItems { get; set; }
+        public DbSet<Budget> Budgets { get; set; }
         public DbSet<AppUser> AppUsers { get; set; }
         public DbSet<AppRole> AppRoles { get; set; }
         public DbSet<UserRole> UserRoles { get; set; }
         public DbSet<RolePermission> RolePermissions { get; set; }
-        public DbSet<ApprovalRecord> ApprovalRecords { get; set; }
-        public DbSet<StatusChangeLog> StatusChangeLogs { get; set; }
 
 
         public ExpenseCategoryAppDbContext(DbContextOptions options)
@@ -27,17 +24,17 @@ namespace ExpenseCategoryApp.EntityFrameworkCore
         {
             base.OnModelCreating(modelBuilder);
 
-            // ExpenseReport 1:N ExpenseItem
-            modelBuilder.Entity<ExpenseItem>()
-                .HasOne(x => x.ExpenseReport)
-                .WithMany(x => x.ExpenseItems)
-                .HasForeignKey(x => x.ExpenseReportId)
-                .OnDelete(DeleteBehavior.Cascade);
-
             // ExpenseCategory 1:N ExpenseItem
             modelBuilder.Entity<ExpenseItem>()
                 .HasOne(x => x.ExpenseCategory)
                 .WithMany(x => x.ExpenseItems)
+                .HasForeignKey(x => x.ExpenseCategoryId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // ExpenseCategory 1:N Budget
+            modelBuilder.Entity<Budget>()
+                .HasOne(x => x.ExpenseCategory)
+                .WithMany(x => x.Budgets)
                 .HasForeignKey(x => x.ExpenseCategoryId)
                 .OnDelete(DeleteBehavior.Restrict);
 

@@ -101,39 +101,6 @@ namespace ExpenseCategoryApp.EntityFrameworkCore.Seed
                     Console.WriteLine("[Seed] Linked admin → Admin role");
                 }
 
-                Console.WriteLine("[Seed] Step 5: Custom role 'FinanceManager'");
-                var customRole_0 = _roleRepo.GetAll().FirstOrDefault(r => r.Name == "FinanceManager");
-                if (customRole_0 == null)
-                {
-                    customRole_0 = new AppRole { Name = "FinanceManager", DisplayName = "Finans Müdürü", Description = "Yönetici onayından geçmiş gider raporlarını nihai olarak onaylar veya revize ister; onay eşiklerini yönetir", IsSystem = false, IsActive = true };
-                    customRole_0.Id = _roleRepo.InsertAndGetId(customRole_0);
-                    Console.WriteLine($"[Seed] Created custom role 'FinanceManager' (id={customRole_0.Id})");
-                }
-                var customPerms_0 = new string[] { "ExpenseReport.Read", "ExpenseReport.Create", "ExpenseReport.Update", "ExpenseReport.Delete", "ExpenseReport.ChangeStatus", "ExpenseCategory.Read", "ExpenseCategory.Create", "ExpenseCategory.Update", "ExpenseCategory.Delete", "ExpenseItem.Read", "ExpenseApprovalThreshold.Read", "ExpenseApprovalThreshold.Create", "ExpenseApprovalThreshold.Update", "ExpenseApprovalThreshold.Delete" };
-                var customGranted_0 = _rolePermRepo.GetAll().Where(p => p.RoleId == customRole_0.Id).Select(p => p.PermissionName).ToList();
-                var allPermSet_0 = new HashSet<string>(_permRegistry.All.Select(p => p.Name));
-                foreach (var pn in customPerms_0.Except(customGranted_0))
-                {
-                    if (!allPermSet_0.Contains(pn)) { Console.WriteLine($"[Seed] Skipping unknown permission '{pn}' for role 'FinanceManager'"); continue; }
-                    _rolePermRepo.Insert(new RolePermission { RoleId = customRole_0.Id, PermissionName = pn });
-                }
-
-                Console.WriteLine("[Seed] Step 6: Custom role 'Employee'");
-                var customRole_1 = _roleRepo.GetAll().FirstOrDefault(r => r.Name == "Employee");
-                if (customRole_1 == null)
-                {
-                    customRole_1 = new AppRole { Name = "Employee", DisplayName = "Çalışan", Description = "Kendi gider raporlarını oluşturur, düzenler ve onaya gönderir", IsSystem = false, IsActive = true };
-                    customRole_1.Id = _roleRepo.InsertAndGetId(customRole_1);
-                    Console.WriteLine($"[Seed] Created custom role 'Employee' (id={customRole_1.Id})");
-                }
-                var customPerms_1 = new string[] { "ExpenseReport.Create", "ExpenseReport.Read", "ExpenseReport.Update", "ExpenseItem.Create", "ExpenseItem.Read", "ExpenseItem.Update", "ExpenseItem.Delete", "ExpenseCategory.Read" };
-                var customGranted_1 = _rolePermRepo.GetAll().Where(p => p.RoleId == customRole_1.Id).Select(p => p.PermissionName).ToList();
-                var allPermSet_1 = new HashSet<string>(_permRegistry.All.Select(p => p.Name));
-                foreach (var pn in customPerms_1.Except(customGranted_1))
-                {
-                    if (!allPermSet_1.Contains(pn)) { Console.WriteLine($"[Seed] Skipping unknown permission '{pn}' for role 'Employee'"); continue; }
-                    _rolePermRepo.Insert(new RolePermission { RoleId = customRole_1.Id, PermissionName = pn });
-                }
                 Console.WriteLine("[Seed] DONE — admin kullanicisi hazir");
             }
             catch (Exception ex)

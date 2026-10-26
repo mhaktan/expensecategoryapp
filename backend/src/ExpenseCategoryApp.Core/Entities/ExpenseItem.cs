@@ -11,26 +11,26 @@ namespace ExpenseCategoryApp.Entities
     public class ExpenseItem : FullAuditedEntity<long>
     {
         [Required]
-        [MaxLength(500)]
-        public string Description { get; set; }
-
-        public DateTime ExpenseDate { get; set; }
+        [MaxLength(200)]
+        public string Title { get; set; }
 
         public decimal Amount { get; set; }
 
         public ExpenseItemCurrency Currency { get; set; }
 
-        public decimal? ExchangeRate { get; set; }
+        public DateTime ExpenseDate { get; set; }
 
-        public decimal? AmountInTRY { get; set; }
+        [MaxLength(1000)]
+        public string Notes { get; set; }
 
-        [MaxLength(100)]
-        public string ReceiptNo { get; set; }
+        public ExpenseItemPaymentMethod? PaymentMethod { get; set; }
 
-        public long ExpenseReportId { get; set; }
+        public bool? IsRecurring { get; set; }
 
-        [ForeignKey(nameof(ExpenseReportId))]
-        public virtual ExpenseReport ExpenseReport { get; set; }
+        public long? UserId { get; set; }
+
+        [ForeignKey(nameof(UserId))]
+        public virtual AppUser User { get; set; }
 
         public long ExpenseCategoryId { get; set; }
 

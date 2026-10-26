@@ -10,7 +10,6 @@ import type { TableColumn } from '../../shared/ListPageLayout';
 import { actionColumn } from '../../shared/ActionButtons';
 import { ExpenseCategoryCreate } from './ExpenseCategoryCreate';
 import { ExpenseCategoryEdit } from './ExpenseCategoryEdit';
-import { useFlows } from '../../flows/FlowProvider';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -20,7 +19,8 @@ type ExpenseCategoryRecord = {
   id: string | number;
   name: string;
   description?: string;
-  isActive: boolean;
+  colorHex?: string;
+  icon?: string;
   [key: string]: unknown;
 };
 
@@ -48,7 +48,8 @@ const COLUMNS: TableColumn[] = [
   { field: 'id', header: 'ID', sortable: true },
   { field: 'name', header: "Name", sortable: true, searchable: true, filterType: 'text' },
   { field: 'description', header: "Description", sortable: true, searchable: true, filterType: 'text' },
-  { field: 'isActive', header: "Is Active", sortable: true, filterType: 'checkbox', filterOptions: [{ label: 'Yes', value: 'true' }, { label: 'No', value: 'false' }], html: (row: Record<string, unknown>) => row.isActive ? '<span style="color:#2e7d32;font-weight:600">Yes</span>' : '<span style="color:#999">No</span>' },
+  { field: 'colorHex', header: "Color Hex", sortable: true, searchable: true, filterType: 'text' },
+  { field: 'icon', header: "Icon", sortable: true, searchable: true, filterType: 'text' },
 ];
 
 // ---------------------------------------------------------------------------
@@ -78,8 +79,8 @@ export const ExpenseCategoryList: React.FC = () => {
       .catch(() => { /* kayit bulunamadi — liste normal acilir */ })
       .finally(clear);
   }, [focusId]);
-  const { triggerFlows } = useFlows();
-  const del = useDeleteMutation('ExpenseCategory', (ids) => { setSelectedRows([]); ids.forEach(id => triggerFlows('delete', 'ExpenseCategory', { id })); });
+
+  const del = useDeleteMutation('ExpenseCategory', (ids) => { setSelectedRows([]); });
 
 
   const columns = [...COLUMNS, ...actionColumn('id', { hasEdit: true, hasDelete: true })];

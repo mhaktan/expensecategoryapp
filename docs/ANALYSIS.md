@@ -4,13 +4,13 @@
 
 ## Orijinal Talep
 
-şirketim için gider takip uygulaması istiyorum. çalışanlar giderlerini girecek giderler kullanıcının bağlı olduğu yönetici ve finans müdürü onayına düşecek. gider kalemleri parametrik olarak değişebilir
+harcama kalemlerini tuttuğum bir uygulama istiyorum bana aylık haftalık harcamaların grafiklerini önceki aylarla karşılaştırmasını verecek bir yapı
 
 ## Özet
 
-Bu uygulama, şirket çalışanlarının iş giderlerini (yemek, ulaşım, konaklama vb.) kayıt altına almasını ve şirket onay sürecinden geçirerek resmileştirilmesini sağlar. Yabancı para birimiyle yapılan harcamalarda o günün döviz kuru da kaydedilir. Gider kategorileri ve finans onayı için tutar eşiği yönetim tarafından parametrik olarak tanımlanabilir.
+Bu uygulama birden fazla kullanıcının kendi harcama kalemlerini kategorilere ve para birimlerine göre ayrı ayrı takip edebildiği, aylık/haftalık harcama trendlerini grafiklerle izleyebildiği ve kategori bazında bütçe limiti tanımlayabildiği kişisel harcama yönetim uygulamasıdır. Her kullanıcı yalnızca kendi kayıtlarını görür.
 
-Çalışan bir gider raporu oluşturur ve harcama kalemlerini kategorilere göre girer; dövizli kalemlerde o günkü kuru ve TRY karşılığını da belirtir. Raporu onaya gönderdiğinde önce bağlı olduğu yöneticiye düşer. Yönetici onaylarsa rapor otomatik olarak Finans Müdürü'ne iletilir — ancak bu adım yalnızca belirlenen tutar eşiğinin üzerindeki raporlar için devreye girer. Finans Müdürü nihai onayı verince rapor tamamlanır. Herhangi bir adımda revize istenirse çalışana geri döner, düzeltip yeniden gönderebilir. Onaylanması mümkün görülmeyen raporlar ise doğrudan reddedilebilir ve süreç kapanır.
+Kullanıcı önce 'Kira', 'Market', 'Ulaşım' gibi harcama kategorilerini tanımlar ve dilerse her kategori için aylık/haftalık bütçe limiti ile uyarı eşiği belirler. Ardından her harcama kalemini tarih, tutar, para birimi ve kategoriyle kaydeder. Ana ekranda bu kayıtlar otomatik olarak haftalık çizgi grafik, aylık bar grafik ve kategoriye göre pasta grafik olarak görselleştirilir. Bütçe limitleri ve uyarı eşiği kayıt altına alınır; kullanıcı mevcut harcamalarını bütçesiyle karşılaştırarak takip edebilir.
 
 ## Kapsam
 
@@ -36,9 +36,10 @@ Bu uygulama, şirket çalışanlarının iş giderlerini (yemek, ulaşım, konak
 
 ```mermaid
 erDiagram
-    User ||--o{ ExpenseReport : "1:N"
-    ExpenseReport ||--o{ ExpenseItem : "1:N"
+    User ||--o{ ExpenseItem : "1:N"
+    User ||--o{ Budget : "1:N"
     ExpenseCategory ||--o{ ExpenseItem : "1:N"
+    ExpenseCategory ||--o{ Budget : "1:N"
     User {
         long id PK
         string userName "zorunlu"
@@ -51,35 +52,28 @@ erDiagram
         long id PK
         string name "zorunlu"
         string description "opsiyonel"
-        bool isActive "zorunlu"
-    }
-    ExpenseApprovalThreshold {
-        long id PK
-        string name "zorunlu"
-        enum currency "zorunlu"
-        decimal thresholdAmount "zorunlu"
-        string description "opsiyonel"
-        bool isActive "zorunlu"
-    }
-    ExpenseReport {
-        long id PK
-        string title "zorunlu"
-        string description "opsiyonel"
-        DateTime reportDate "zorunlu"
-        decimal totalAmount "opsiyonel"
-        enum currency "zorunlu"
-        enum status "zorunlu"
-        string revisionNote "opsiyonel"
+        string colorHex "opsiyonel"
+        string icon "opsiyonel"
     }
     ExpenseItem {
         long id PK
-        string description "zorunlu"
-        DateTime expenseDate "zorunlu"
+        string title "zorunlu"
         decimal amount "zorunlu"
         enum currency "zorunlu"
-        decimal exchangeRate "opsiyonel"
-        decimal amountInTRY "opsiyonel"
-        string receiptNo "opsiyonel"
+        DateTime expenseDate "zorunlu"
+        string notes "opsiyonel"
+        enum paymentMethod "opsiyonel"
+        bool isRecurring "opsiyonel"
+    }
+    Budget {
+        long id PK
+        string name "zorunlu"
+        decimal limitAmount "zorunlu"
+        enum currency "zorunlu"
+        enum periodType "zorunlu"
+        DateTime startDate "zorunlu"
+        DateTime endDate "opsiyonel"
+        int warningThresholdPercent "opsiyonel"
     }
 ```
 
@@ -94,112 +88,49 @@ erDiagram
 | `surname` | string | Hayır | 128 |
 | `isActive` | bool | Hayır | — |
 
-**Neye bağlı:** ExpenseReport (1:N, bu tablo "bir" tarafı)
+**Neye bağlı:** ExpenseItem (1:N, bu tablo "bir" tarafı) · Budget (1:N, bu tablo "bir" tarafı)
 
-### ExpenseCategory — Gider Kategorisi
-
-| Alan | Tip | Zorunlu | Uzunluk |
-|---|---|---|---|
-| `id` | long | Evet | — |
-| `name` | string | Evet | 200 |
-| `description` | string | Hayır | 500 |
-| `isActive` | bool | Evet | — |
-
-**Neye bağlı:** ExpenseItem (1:N, bu tablo "bir" tarafı)
-
-### ExpenseApprovalThreshold — Gider Onay Eşiği
+### ExpenseCategory — Harcama Kategorisi
 
 | Alan | Tip | Zorunlu | Uzunluk |
 |---|---|---|---|
 | `id` | long | Evet | — |
-| `name` | string | Evet | 200 |
-| `currency` | enum (TRY,USD,EUR,GBP) | Evet | — |
-| `thresholdAmount` | decimal | Evet | — |
+| `name` | string | Evet | 100 |
 | `description` | string | Hayır | 500 |
-| `isActive` | bool | Evet | — |
+| `colorHex` | string | Hayır | 7 |
+| `icon` | string | Hayır | 50 |
 
-**Neye bağlı:** bağımsız tablo
+**Neye bağlı:** ExpenseItem (1:N, bu tablo "bir" tarafı) · Budget (1:N, bu tablo "bir" tarafı)
 
-### ExpenseReport — Gider Raporu
+### ExpenseItem — Harcama Kalemi
 
 | Alan | Tip | Zorunlu | Uzunluk |
 |---|---|---|---|
 | `id` | long | Evet | — |
 | `title` | string | Evet | 200 |
-| `description` | string | Hayır | 1000 |
-| `reportDate` | DateTime | Evet | — |
-| `totalAmount` | decimal | Hayır | — |
-| `currency` | enum (TRY,USD,EUR,GBP) | Evet | — |
-| `status` | enum (Draft,PendingManagerApproval,PendingFinanceApproval,Approved,Revision,Rejected,Cancelled) | Evet | — |
-| `revisionNote` | string | Hayır | 1000 |
+| `amount` | decimal | Evet | — |
+| `currency` | enum (TRY,USD,EUR,GBP,CHF,JPY,CAD,AUD,Other) | Evet | — |
+| `expenseDate` | DateTime | Evet | — |
+| `notes` | string | Hayır | 1000 |
+| `paymentMethod` | enum (Cash,CreditCard,DebitCard,BankTransfer,Other) | Hayır | — |
+| `isRecurring` | bool | Hayır | — |
 
-**Neye bağlı:** User (1:N, bu tablo "çok" tarafı) · ExpenseItem (1:N, bu tablo "bir" tarafı)
+**Neye bağlı:** User (1:N, bu tablo "çok" tarafı) · ExpenseCategory (1:N, bu tablo "çok" tarafı)
 
-### ExpenseItem — Gider Kalemi
+### Budget — Bütçe Limiti
 
 | Alan | Tip | Zorunlu | Uzunluk |
 |---|---|---|---|
 | `id` | long | Evet | — |
-| `description` | string | Evet | 500 |
-| `expenseDate` | DateTime | Evet | — |
-| `amount` | decimal | Evet | — |
-| `currency` | enum (TRY,USD,EUR,GBP) | Evet | — |
-| `exchangeRate` | decimal | Hayır | — |
-| `amountInTRY` | decimal | Hayır | — |
-| `receiptNo` | string | Hayır | 100 |
+| `name` | string | Evet | 200 |
+| `limitAmount` | decimal | Evet | — |
+| `currency` | enum (TRY,USD,EUR,GBP,CHF,JPY,CAD,AUD,Other) | Evet | — |
+| `periodType` | enum (Monthly,Weekly,Yearly) | Evet | — |
+| `startDate` | DateTime | Evet | — |
+| `endDate` | DateTime | Hayır | — |
+| `warningThresholdPercent` | int | Hayır | — |
 
-**Neye bağlı:** ExpenseReport (1:N, bu tablo "çok" tarafı) · ExpenseCategory (1:N, bu tablo "çok" tarafı)
-
-
-## İş Akışları
-
-### Gider Raporu — durum makinesi
-
-```mermaid
-stateDiagram-v2
-    [*] --> Draft
-    Draft --> PendingManagerApproval : Submit
-    PendingManagerApproval --> PendingFinanceApproval : Approve
-    PendingManagerApproval --> Revision : Revise
-    PendingFinanceApproval --> Approved : Approve
-    PendingFinanceApproval --> Revision : Revise
-    Revision --> PendingManagerApproval : Resubmit
-    PendingManagerApproval --> Rejected : Reject
-    PendingFinanceApproval --> Rejected : Reject
-    Draft --> Cancelled : Cancel
-    PendingManagerApproval --> Cancelled : Cancel
-    PendingFinanceApproval --> Cancelled : Cancel
-    Approved --> Cancelled : Cancel
-    Revision --> Cancelled : Cancel
-    Rejected --> Cancelled : Cancel
-```
-
-**Onay adımları**
-
-| # | Adım | Atanan | Aksiyonlar | Zorunlu alanlar |
-|---|---|---|---|---|
-| 1 | Yönetici Onayı | manager: `1` | Onayla (approve), Revize Et (revise) | `revisionNote` |
-| 2 | Finans Müdürü Onayı | Rol: `FinanceManager` | Onayla (approve), Revize Et (revise) | `revisionNote` |
-
-Reddedilirse kayıt **`Revision`** durumuna döner.
-
-### Akış: ExpenseReport Approval Flow
-
-Auto-generated approval flow for ExpenseReport. Customize email templates and add conditions as needed.
-
-```mermaid
-flowchart TD
-    ExpenseReport_approval_trigger(["On ExpenseReport Submit"])
-    ExpenseReport_approval_condition{"Status = PendingManagerApproval?"}
-    ExpenseReport_approval_approval[["ExpenseReport Approval"]]
-    ExpenseReport_approval_email["Send Approval Email (send-email)"]
-    ExpenseReport_approval_completion_trigger(["On ExpenseReport Approved"])
-    ExpenseReport_approval_completion_email["Send Completion Email (send-email)"]
-    ExpenseReport_approval_trigger --> ExpenseReport_approval_condition
-    ExpenseReport_approval_condition -->|true| ExpenseReport_approval_approval
-    ExpenseReport_approval_approval --> ExpenseReport_approval_email
-    ExpenseReport_approval_completion_trigger --> ExpenseReport_approval_completion_email
-```
+**Neye bağlı:** User (1:N, bu tablo "çok" tarafı) · ExpenseCategory (1:N, bu tablo "çok" tarafı)
 
 
 ## Elle Geliştirme Gerektirenler
@@ -208,7 +139,7 @@ Aşağıdaki maddeler senaryonun gereği ama üretilen koda yansımıyor — kod
 
 | Alan | İş | Neden | Geçici çözüm |
 |---|---|---|---|
-| entity | Toplam tutar gider kalemlerinden otomatik hesaplanmıyor | Hesaplanan alan üretimi desteklenmiyor; kalem toplamı ExpenseReport.totalAmount alanına otomatik yazılamaz | Kullanıcı totalAmount alanını manuel girer veya bu hesaplama backend geliştirmesiyle eklenir |
-| entity | TRY karşılığı (amountInTRY) döviz kurundan otomatik hesaplanmıyor | Hesaplanan alan üretimi desteklenmiyor; amount × exchangeRate çarpımı amountInTRY alanına otomatik yazılamaz | Kullanıcı amountInTRY alanını manuel girer veya hesaplama backend geliştirmesiyle eklenir |
-| approval | Finans Müdürü onay eşiğinin approval condition'ına dinamik bağlanması | Approval adımındaki condition sabit değer karşılaştırması yapar; ExpenseApprovalThreshold tablosundaki parametrik değeri dinamik olarak okuyamaz | Eşik değeri sisteme tanımlandıktan sonra approval step condition'ı sabit olarak güncellenmeli. Eşik sık değişmiyorsa bu yönetilebilir; sık değişiyorsa backend geliştirmesi gerekir |
-| approval | Çalışanın kendi gider raporunu onaylayamaması garantisi | Yönetici, org şeması üzerinden çözülüyor (assigneeType: manager). Sistem org şeması yapılandırılmadığında bu kontrolü yapamaz | Organizasyon şeması sisteme tanımlanmalı; aksi hâlde onay Admin rolüne düşer |
+| entity | Toplam harcama tutarı otomatik hesaplanmıyor | Hesaplanan alan (kalemler toplamı gibi aggregate) üretilmiyor; alanlar düz saklanır. | Dashboard'daki breakdown/list widget'ları toplamı görsel olarak sunar; ayrı bir 'toplam' alanı tutulmaz. |
+| entity | Önceki aylarla otomatik karşılaştırma grafik ayrımı | Dashboard widget'ları zaman serisi kırılımını (ay bazlı gruplama) destekler ancak 'geçen ay vs bu ay' gibi yan yana ikili karşılaştırma widget tipi mevcut değil. | Aylık Harcama Karşılaştırması widget'ı expenseDate'e göre bar grafik olarak tüm ayları listeler; kullanıcı barları karşılaştırabilir. |
+| validation | Bütçe limitine yaklaşınca otomatik uyarı/bildirim gönderilemiyor | SLA/eşik bazlı otomatik bildirim ve eskalasyon mekanizması bu sürümde desteklenmiyor. Bütçe limiti ve uyarı eşiği (warningThresholdPercent) kayıt altına alınır ancak aşım otomatik olarak tespit edilip e-posta/bildirim gönderilemez. | Kullanıcı dashboard'daki kategoriye göre harcama grafiğini ve bütçe listesini manuel olarak inceleyerek kendi limitini takip edebilir. |
+| entity | Çoklu döviz harcamalarında ortak para birimine çevirme yapılamıyor | Hesaplanan alan ve döviz kuru entegrasyonu bu sürümde desteklenmiyor. Her harcama kendi para birimiyle saklanır; farklı dövizlerdeki harcamaların toplamı tek bir para biriminde gösterilemiyor. | Kullanıcı harcamaları para birimi bazında ayrı ayrı görüntüleyebilir; tek para biriminde toplam isteniyorsa aynı para birimindeki harcamalar gruplanarak dashboard'dan izlenebilir. |

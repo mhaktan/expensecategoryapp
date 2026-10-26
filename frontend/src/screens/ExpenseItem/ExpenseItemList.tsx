@@ -10,7 +10,6 @@ import type { TableColumn } from '../../shared/ListPageLayout';
 import { actionColumn } from '../../shared/ActionButtons';
 import { ExpenseItemCreate } from './ExpenseItemCreate';
 import { ExpenseItemEdit } from './ExpenseItemEdit';
-import { useFlows } from '../../flows/FlowProvider';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -18,14 +17,14 @@ import { useFlows } from '../../flows/FlowProvider';
 
 type ExpenseItemRecord = {
   id: string | number;
-  description: string;
-  expenseDate: string;
+  title: string;
   amount: number;
   currency: string;
-  exchangeRate?: number;
-  amountInTRY?: number;
-  receiptNo?: string;
-  expenseReportId: string;
+  expenseDate: string;
+  notes?: string;
+  paymentMethod?: string;
+  isRecurring?: boolean;
+  userId?: string;
   expenseCategoryId: string;
   [key: string]: unknown;
 };
@@ -52,15 +51,15 @@ type ExpenseItemRecord = {
 
 const COLUMNS: TableColumn[] = [
   { field: 'id', header: 'ID', sortable: true },
-  { field: 'description', header: "Description", sortable: true, searchable: true, filterType: 'text' },
-  { field: 'expenseDate', header: "Expense Date", sortable: true, filterType: 'datepicker', html: (row: Record<string, unknown>) => row.expenseDate ? new Date(String(row.expenseDate)).toLocaleDateString() : '—' },
+  { field: 'title', header: "Title", sortable: true, searchable: true, filterType: 'text' },
   { field: 'amount', header: "Amount", sortable: true },
-  { field: 'currency', header: "Currency", sortable: true, filterType: 'radio', filterOptions: [{ label: "TRY", value: "0" }, { label: "USD", value: "1" }, { label: "EUR", value: "2" }, { label: "GBP", value: "3" }], html: (row: Record<string, unknown>) => { const m: Record<string, string> = {["0"]: "TRY", ["1"]: "USD", ["2"]: "EUR", ["3"]: "GBP"}; return m[String(row.currency ?? '')] ?? String(row.currency ?? '\u2014'); } },
-  { field: 'exchangeRate', header: "Exchange Rate", sortable: true },
-  { field: 'amountInTRY', header: "Amount In T R Y", sortable: true },
-  { field: 'receiptNo', header: "Receipt No", sortable: true, searchable: true, filterType: 'text' },
-  { field: 'expenseReportId', header: "Gider Raporu", sortable: true },
-  { field: 'expenseCategoryId', header: "Gider Kategorisi", sortable: true },
+  { field: 'currency', header: "Currency", sortable: true, filterType: 'radio', filterOptions: [{ label: "TRY", value: "0" }, { label: "USD", value: "1" }, { label: "EUR", value: "2" }, { label: "GBP", value: "3" }, { label: "CHF", value: "4" }, { label: "JPY", value: "5" }, { label: "CAD", value: "6" }, { label: "AUD", value: "7" }, { label: "Other", value: "8" }], html: (row: Record<string, unknown>) => { const m: Record<string, string> = {["0"]: "TRY", ["1"]: "USD", ["2"]: "EUR", ["3"]: "GBP", ["4"]: "CHF", ["5"]: "JPY", ["6"]: "CAD", ["7"]: "AUD", ["8"]: "Other"}; return m[String(row.currency ?? '')] ?? String(row.currency ?? '\u2014'); } },
+  { field: 'expenseDate', header: "Expense Date", sortable: true, filterType: 'datepicker', html: (row: Record<string, unknown>) => row.expenseDate ? new Date(String(row.expenseDate)).toLocaleDateString() : '—' },
+  { field: 'notes', header: "Notes", sortable: true, searchable: true, filterType: 'text' },
+  { field: 'paymentMethod', header: "Payment Method", sortable: true, filterType: 'radio', filterOptions: [{ label: "Cash", value: "0" }, { label: "CreditCard", value: "1" }, { label: "DebitCard", value: "2" }, { label: "BankTransfer", value: "3" }, { label: "Other", value: "4" }], html: (row: Record<string, unknown>) => { const m: Record<string, string> = {["0"]: "Cash", ["1"]: "CreditCard", ["2"]: "DebitCard", ["3"]: "BankTransfer", ["4"]: "Other"}; return m[String(row.paymentMethod ?? '')] ?? String(row.paymentMethod ?? '\u2014'); } },
+  { field: 'isRecurring', header: "Is Recurring", sortable: true, filterType: 'checkbox', filterOptions: [{ label: 'Yes', value: 'true' }, { label: 'No', value: 'false' }], html: (row: Record<string, unknown>) => row.isRecurring ? '<span style="color:#2e7d32;font-weight:600">Yes</span>' : '<span style="color:#999">No</span>' },
+  { field: 'userId', header: "Kullanıcı (Sistem)", sortable: true },
+  { field: 'expenseCategoryId', header: "Harcama Kategorisi", sortable: true },
 ];
 
 // ---------------------------------------------------------------------------
@@ -90,8 +89,8 @@ export const ExpenseItemList: React.FC = () => {
       .catch(() => { /* kayit bulunamadi — liste normal acilir */ })
       .finally(clear);
   }, [focusId]);
-  const { triggerFlows } = useFlows();
-  const del = useDeleteMutation('ExpenseItem', (ids) => { setSelectedRows([]); ids.forEach(id => triggerFlows('delete', 'ExpenseItem', { id })); });
+
+  const del = useDeleteMutation('ExpenseItem', (ids) => { setSelectedRows([]); });
 
 
   const columns = [...COLUMNS, ...actionColumn('id', { hasEdit: true, hasDelete: true })];

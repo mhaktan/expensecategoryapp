@@ -30,30 +30,21 @@ const filterByRole = (items: MenuItem[]): MenuItem[] =>
 
 const MENU_ITEMS: MenuItem[] = [
   {
-    "label": "My Tasks",
-    "path": "/tasks",
-    "icon": "task_alt"
-  },
-  {
     "label": "Dashboard",
     "path": "/dashboard",
     "icon": "dashboard"
   },
   {
-    "label": "ExpenseCategory",
+    "label": "Harcama Kategorisi",
     "path": "/ExpenseCategory"
   },
   {
-    "label": "ExpenseApprovalThreshold",
-    "path": "/ExpenseApprovalThreshold"
-  },
-  {
-    "label": "ExpenseReport",
-    "path": "/ExpenseReport"
-  },
-  {
-    "label": "ExpenseItem",
+    "label": "Harcama Kalemi",
     "path": "/ExpenseItem"
+  },
+  {
+    "label": "Bütçe Limiti",
+    "path": "/Budget"
   },
   {
     "label": "Administration",
